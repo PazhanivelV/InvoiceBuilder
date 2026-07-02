@@ -1,14 +1,29 @@
-import { configureStore } from '@reduxjs/toolkit'
-import InvoiceSlice from './InvoiceSlice'
+// import { configureStore } from '@reduxjs/toolkit'
+// import InvoiceSlice from './InvoiceSlice'
 
-const store = configureStore({
-    reducer: {
-        invoice: InvoiceSlice,
-    }
+// const store = configureStore({
+//     reducer: {
+//         invoice: InvoiceSlice,
+//     }
 
-})
+// })
 
-export default store
+// export default store
+
+
+import { configureStore } from "@reduxjs/toolkit";
+import InvoiceSlice from "./InvoiceSlice";
+
+export const store = configureStore({
+  reducer: {
+    invoice: InvoiceSlice,
+  },
+});
+
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;
+
+export default store;
 
 // store  >> where u are going to put ur data
 // slice

@@ -2,11 +2,18 @@ import { useEffect, useState } from "react";
 import { type InvoiceItems } from "./utils/InvoiceSlice";
 import { useSelector } from 'react-redux'
 import { useNavigate, useParams } from "react-router-dom";
-import html2pdf from "html2pdf.js";
+// import html2pdf from "html2pdf.js";
+
+import { type RootState } from "./utils/store";
 
 const InvoicePreview = () => {
   const navigate = useNavigate()
-  const invoice = useSelector(state => state?.invoice)
+  //const invoice = useSelector(state => state?.invoice)
+
+  const invoice = useSelector(
+  (state: RootState) => state.invoice
+);
+
   const { id } = useParams()
   const [clientName, setClientName] = useState("");
   const [address, setAddress] = useState("");
@@ -15,7 +22,7 @@ const InvoicePreview = () => {
   const [tax, setTax] = useState(18);
   const [items, setItems] = useState<InvoiceItems[]>([
     {
-      id: '',
+      itemid: '',
       description: "",
       quantity: 1,
       rate: 0,
@@ -39,33 +46,33 @@ const InvoicePreview = () => {
     setItems(objInvoice.InvoiceItems)
   }
 
-  const downloadPDF = () => {
-    const element = document.getElementById("invoice-preview");
+  // const downloadPDF = () => {
+  //   const element = document.getElementById("invoice-preview");
 
-    if (!element) return;
+  //   if (!element) return;
 
-    html2pdf()
-      .set({
-        margin: 0.5,
-        filename: `${invoiceNo}.pdf`,
-        image: {
-          type: "jpeg",
-          quality: 1,
-        },
-        html2canvas: {
-          scale: 3,
-          useCORS: true,
-          backgroundColor: "#ffffff",
-        },
-        jsPDF: {
-          unit: "in",
-          format: "a4",
-          orientation: "portrait",
-        },
-      })
-      .from(element)
-      .save();
-  };
+  //   html2pdf()
+  //     .set({
+  //       margin: 0.5,
+  //       filename: `${invoiceNo}.pdf`,
+  //       image: {
+  //         type: "jpeg",
+  //         quality: 1,
+  //       },
+  //       html2canvas: {
+  //         scale: 3,
+  //         useCORS: true,
+  //         backgroundColor: "#ffffff",
+  //       },
+  //       jsPDF: {
+  //         unit: "in",
+  //         format: "a4",
+  //         orientation: "portrait",
+  //       },
+  //     })
+  //     .from(element)
+  //     .save();
+  // };
 
   const subtotal = items.reduce(
     (sum, item) => sum + item.quantity * item.rate,
@@ -162,7 +169,7 @@ const InvoicePreview = () => {
             </thead>
             <tbody>
               {items.map((item) => (
-                <tr key={item.id} className="border-b">
+                <tr key={item.itemid} className="border-b">
                   <td className="p-3">
                     {item.description}
                   </td>

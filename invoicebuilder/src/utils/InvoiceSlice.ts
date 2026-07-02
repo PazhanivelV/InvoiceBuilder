@@ -1,9 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { GuidGenerator } from "./GuidGenerator";
+// import { GuidGenerator } from "./GuidGenerator";
 //import { useState } from "react";
 
 export type InvoiceItems = {
-    id: string;
+    itemid: string;
     description: string;
     quantity: number;
     rate: number;
@@ -17,9 +17,9 @@ const invoiceNoSeq: InvoiceNoSeq = 1001;
 
 export type Invoice = {
     id: string,
-    CustomerName: String,
-    InvoiceNo: String,
-    Address: String,
+    CustomerName: string,
+    InvoiceNo: string,
+    Address: string,
     InoviceDate: string
     InvoiceItems: InvoiceItems[],
     Tax: number,

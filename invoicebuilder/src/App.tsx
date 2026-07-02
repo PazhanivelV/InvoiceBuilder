@@ -1,9 +1,9 @@
 
 import { Route, Routes } from 'react-router-dom'
 import InvoiceList from './InvoiceList';
-import Invoice from './Invoice'
+import InvoiceFile from './InvoiceFile'
 import InvoicePreview from './InvoicePreview'
-import toast, { Toaster } from "react-hot-toast";
+import  { Toaster } from "react-hot-toast";
 function App() {
 
 
@@ -18,7 +18,7 @@ function App() {
             <Routes>
               <Route path='/' element={<InvoiceList />} />
                <Route path='/InvoiceList' element={<InvoiceList />} />
-              <Route path='/Invoice/:id' element={<Invoice />} />
+              <Route path='/InvoiceFile/:id' element={<InvoiceFile />} />
               <Route path='/InvoicePreview/:id' element={<InvoicePreview />} />
             </Routes>
           </div>

@@ -4,13 +4,17 @@ import { useSelector, useDispatch } from 'react-redux'
 import { addInvoice, updateInvoice, incrementSequnce } from './utils/InvoiceSlice'
 import { type InvoiceItems, type Invoice } from "./utils/InvoiceSlice";
 import { GuidGenerator } from "./utils/GuidGenerator";
-import "react-datepicker/dist/react-datepicker.css";
+// import "react-datepicker/dist/react-datepicker.css";
 import toast from "react-hot-toast";
+import { type RootState } from "./utils/store";
 
-const Invoice = () => {
+const InvoiceFile = () => {
   const { id } = useParams()
   const dispatch = useDispatch()
-  const invoice = useSelector(state => state?.invoice)
+ // const invoice = useSelector(state => state?.invoice)
+  const invoice = useSelector(
+  (state: RootState) => state.invoice
+);
   const navigate = useNavigate()
   const [clientName, setClientName] = useState("");
   const [address, setAddress] = useState("");
@@ -19,7 +23,7 @@ const Invoice = () => {
   const [tax, setTax] = useState(18);
   const [items, setItems] = useState<InvoiceItems[]>([
     {
-      id: GuidGenerator.standard(),
+      itemid: GuidGenerator.standard(),
       description: "",
       quantity: 1,
       rate: 0,
@@ -52,7 +56,7 @@ const Invoice = () => {
   ) => {
     setItems((prev) =>
       prev.map((item) =>
-        item.id === id ? { ...item, [field]: value } : item
+        item.itemid === id ? { ...item, [field]: value } : item
       )
     );
   };
@@ -61,7 +65,7 @@ const Invoice = () => {
     setItems([
       ...items,
       {
-        id: GuidGenerator.standard(),
+        itemid: GuidGenerator.standard(),
         description: "",
         quantity: 1,
         rate: 0,
@@ -70,7 +74,7 @@ const Invoice = () => {
   };
 
   const removeItem = (id: string) => {
-    setItems(items.filter((item) => item.id !== id));
+    setItems(items.filter((item) => item.itemid !== id));
   };
 
   const subtotal = useMemo(() => {
@@ -90,7 +94,7 @@ const Invoice = () => {
 
   const SaveInvoice = () => {
     const invoiceData: Invoice = {
-      id: id === "0" ? GuidGenerator.standard() : id,
+      id: (id == undefined || id === "0") ? GuidGenerator.standard() : id,
       CustomerName: clientName,
       InvoiceNo: invoiceNo,
       Address: address,
@@ -147,6 +151,7 @@ const Invoice = () => {
   }
 
   return (
+ 
     <div className="min-h-screen bg-slate-100 p-8">
 
       <div className="mx-auto max-w-6xl rounded-xl bg-white p-8 shadow-lg">
@@ -281,13 +286,13 @@ const Invoice = () => {
             <tbody>
 
               {items?.map((item) => (
-                <tr key={item.id}>
+                <tr key={item.itemid}>
                   <td className="p-2">
                     <input
                       value={item.description}
                       onChange={(e) =>
                         updateItem(
-                          item.id,
+                          item.itemid,
                           "description",
                           e.target.value
                         )
@@ -302,7 +307,7 @@ const Invoice = () => {
                       value={item.quantity}
                       onChange={(e) =>
                         updateItem(
-                          item.id,
+                          item.itemid,
                           "quantity",
                           Number(e.target.value)
                         )
@@ -317,7 +322,7 @@ const Invoice = () => {
                       value={item.rate}
                       onChange={(e) =>
                         updateItem(
-                          item.id,
+                          item.itemid,
                           "rate",
                           Number(e.target.value)
                         )
@@ -331,7 +336,7 @@ const Invoice = () => {
                   </td>
                   <td>
                     <button
-                      onClick={() => removeItem(item.id)}
+                      onClick={() => removeItem(item.itemid)}
                       className="rounded bg-red-500 px-3 py-2 text-white"
                     >
                       Delete
@@ -359,7 +364,8 @@ const Invoice = () => {
         </button>
       </div>
     </div>
+    
   );
 };
 
-export default Invoice;
+export default InvoiceFile;

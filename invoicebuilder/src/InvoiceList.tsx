@@ -1,19 +1,23 @@
 
 import { useSelector, useDispatch } from 'react-redux'
-import Invoice from './Invoice'
+// import InvoiceFile from './InvoiceFile'
 import { useNavigate } from "react-router-dom";
 import { removeInvoice } from './utils/InvoiceSlice';
-import { format } from "date-fns";
-import InvoicePreview from './InvoicePreview';
+// import { format } from "date-fns";
+// import InvoicePreview from './InvoicePreview';
 import toast from "react-hot-toast";
+import { type RootState } from "./utils/store";
 
 const InvoiceList = () => {
     const navigate = useNavigate()
-    const Invoices = useSelector(state => state.invoice.Invoices)
+    //const Invoices = useSelector(state => state.invoice.Invoices)
+ const Invoices = useSelector(
+  (state: RootState) => state.invoice.Invoices
+);
     const dispatch = useDispatch()
     // console.log(Invoices)
     const handleEdit = (id: string) => {
-        navigate(`/Invoice/${id}`);
+        navigate(`/InvoiceFile/${id}`);
     }
     const handleDelete = (id: string) => {
         const inv = Invoices.filter(
@@ -56,7 +60,7 @@ const InvoiceList = () => {
                     </div>
 
                     <div style={{ width: "15%" }} onClick={() => {
-                        navigate('/Invoice/0')
+                        navigate('/InvoiceFile/0')
                     }
                     } >
                         <button className="flex items-center gap-2 border-2 border-solid rounded-lg px-4 py-2 text-white underline">
