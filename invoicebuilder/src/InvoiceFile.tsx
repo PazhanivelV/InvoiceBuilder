@@ -11,10 +11,10 @@ import { type RootState } from "./utils/store";
 const InvoiceFile = () => {
   const { id } = useParams()
   const dispatch = useDispatch()
- // const invoice = useSelector(state => state?.invoice)
+  // const invoice = useSelector(state => state?.invoice)
   const invoice = useSelector(
-  (state: RootState) => state.invoice
-);
+    (state: RootState) => state.invoice
+  );
   const navigate = useNavigate()
   const [clientName, setClientName] = useState("");
   const [address, setAddress] = useState("");
@@ -29,6 +29,66 @@ const InvoiceFile = () => {
       rate: 0,
     },
   ]);
+
+  const [errors, setErrors] = useState({
+    clientName: "",
+    address: "",
+    invoiceDate: "",
+  });
+
+  const validate = () => {
+    const newErrors = {
+      clientName: "",
+      address: "",
+      invoiceDate: "",
+    };
+
+    let isValid = true;
+
+    if (!clientName.trim()) {
+      newErrors.clientName = "Client Name is required.";
+      isValid = false;
+    }
+
+    if (!address.trim()) {
+      newErrors.address = "Address is required.";
+      isValid = false;
+    }
+
+    if (!invoiceDate) {
+      newErrors.invoiceDate = "Invoice Date is required.";
+      isValid = false;
+    }
+
+    if (items.length === 0) {
+      toast.error("Please add at least one invoice item.");
+      isValid = false;
+    }
+
+    for (const item of items) {
+      if (!item.description.trim()) {
+        toast.error("Item description is required.");
+        isValid = false;
+        break;
+      }
+
+      if (item.quantity <= 0) {
+        toast.error("Quantity must be greater than zero.");
+        isValid = false;
+        break;
+      }
+
+      if (item.rate <= 0) {
+        toast.error("Rate must be greater than zero.");
+        isValid = false;
+        break;
+      }
+    }
+
+    setErrors(newErrors);
+
+    return isValid;
+  };
 
   useEffect(() => {
     if (id != "0") {
@@ -46,7 +106,7 @@ const InvoiceFile = () => {
     setInvoiceDate(objInvoice.InoviceDate)
     setTax(objInvoice.Tax)
     setItems(objInvoice.InvoiceItems)
-  //  console.log(items)
+    //  console.log(items)
   }
 
   const updateItem = (
@@ -93,6 +153,8 @@ const InvoiceFile = () => {
   const grandTotal = subtotal + taxAmount;
 
   const SaveInvoice = () => {
+    if (!validate()) return;
+
     const invoiceData: Invoice = {
       id: (id == undefined || id === "0") ? GuidGenerator.standard() : id,
       CustomerName: clientName,
@@ -106,7 +168,7 @@ const InvoiceFile = () => {
     if (id == "0") {
       dispatch(addInvoice(invoiceData))
       dispatch(incrementSequnce())
-         toast.custom(() => (
+      toast.custom(() => (
         <div
           className="shadow-sm bg-white text-sm p-4 rounded-md border border-slate-200 w-max min-w-xs max-w-sm dark:bg-neutral-800 dark:border-neutral-700"
           role="alert">
@@ -151,7 +213,7 @@ const InvoiceFile = () => {
   }
 
   return (
- 
+
     <div className="min-h-screen bg-slate-100 p-8">
 
       <div className="mx-auto max-w-6xl rounded-xl bg-white p-8 shadow-lg">
@@ -159,7 +221,7 @@ const InvoiceFile = () => {
         <h1 className="mb-8 text-center text-3xl font-bold">
           Invoice Pro
         </h1>
-       
+
         <div className="flex flex-col gap-8 lg:flex-row">
           <div className="lg:w-2/3">
             <div className="grid gap-6 md:grid-cols-1">
@@ -170,11 +232,25 @@ const InvoiceFile = () => {
                   Client Name
                 </label>
 
+                {/* <input
+                  value={clientName} required
+                  onChange={(e) => setClientName(e.target.value)}
+                  className="w-1/2 rounded border p-2"
+                /> */}
+
+
                 <input
                   value={clientName}
                   onChange={(e) => setClientName(e.target.value)}
-                  className="w-1/2 rounded border p-2 required"
+                  className={`w-1/2 rounded border p-2 ${errors.clientName ? "border-red-500" : ""
+                    }`}
                 />
+
+                {errors.clientName && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.clientName}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -182,9 +258,9 @@ const InvoiceFile = () => {
                   Invoice Number
                 </label>
                 <input readOnly
-                  value={invoiceNo}
+                  value={invoiceNo} required
                   onChange={(e) => setInvoiceNo(e.target.value)}
-                  className="w-1/2 rounded border p-2 required"
+                  className="w-1/2 rounded border p-2"
                 />
               </div>
 
@@ -194,22 +270,43 @@ const InvoiceFile = () => {
                   Address
                 </label>
 
-                <textarea
+                {/* <textarea required
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
                   className="w-2/3 rounded border p-2 required"
+                /> */}
+
+                <textarea
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  className={`w-2/3 rounded border p-2 ${errors.address ? "border-red-500" : ""
+                    }`}
                 />
+
+                {errors.address && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.address}
+                  </p>
+                )}
+
               </div>
               <div>
                 <label className="mb-2 block font-semibold">
                   Invoice Date
-                </label>
+                </label>            
                 <input
-                  type="date"
+                  type="date" required
                   value={invoiceDate}
                   onChange={(e) => setInvoiceDate(e.target.value)} onKeyDown={(e) => e.preventDefault()}
-                  className="w-auto rounded border p-2 required"
-                />              
+                  className={`w-2/3 rounded border p-2 ${errors.invoiceDate ? "border-red-500" : ""
+                    }`}
+                />
+                {errors.invoiceDate && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.invoiceDate}
+                  </p>
+                )}
+
               </div>
 
             </div>
@@ -300,7 +397,6 @@ const InvoiceFile = () => {
                       className="w-full rounded border p-2 required"
                     />
                   </td>
-
                   <td>
                     <input
                       type="number"
@@ -364,7 +460,7 @@ const InvoiceFile = () => {
         </button>
       </div>
     </div>
-    
+
   );
 };
 
