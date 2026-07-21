@@ -1,18 +1,19 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { type InvoiceItems } from "./utils/InvoiceSlice";
 import { useSelector } from 'react-redux'
 import { useNavigate, useParams } from "react-router-dom";
-// import html2pdf from "html2pdf.js";
-
+import html2pdf from "html2pdf.js";
 import { type RootState } from "./utils/store";
+import './App.css'
+
 
 const InvoicePreview = () => {
   const navigate = useNavigate()
-  //const invoice = useSelector(state => state?.invoice)
+  const invoiceRef = useRef<HTMLDivElement>(null);
 
   const invoice = useSelector(
-  (state: RootState) => state.invoice
-);
+    (state: RootState) => state.invoice
+  );
 
   const { id } = useParams()
   const [clientName, setClientName] = useState("");
@@ -46,33 +47,35 @@ const InvoicePreview = () => {
     setItems(objInvoice.InvoiceItems)
   }
 
-  // const downloadPDF = () => {
-  //   const element = document.getElementById("invoice-preview");
 
-  //   if (!element) return;
+  const DownloadPDF = () => {
+    if (!invoiceRef.current) return;
+    html2pdf()
+      .from(invoiceRef.current)
+      .set({
+        margin: 0,
+        filename: `${invoiceNo}.pdf`,
+        image: {
+          type: "jpeg",
+          quality: 1
+        },
+        html2canvas: {
+          scale: 3,
+          backgroundColor: "#ffffff",
+          useCORS: true,
+          logging: false,
+          letterRendering: true
+        },
+        jsPDF: {
+          unit: "mm",
+          format: "a4",
+          orientation: "portrait"
+        }
+      })
+      .save();
+  };
 
-  //   html2pdf()
-  //     .set({
-  //       margin: 0.5,
-  //       filename: `${invoiceNo}.pdf`,
-  //       image: {
-  //         type: "jpeg",
-  //         quality: 1,
-  //       },
-  //       html2canvas: {
-  //         scale: 3,
-  //         useCORS: true,
-  //         backgroundColor: "#ffffff",
-  //       },
-  //       jsPDF: {
-  //         unit: "in",
-  //         format: "a4",
-  //         orientation: "portrait",
-  //       },
-  //     })
-  //     .from(element)
-  //     .save();
-  // };
+
 
   const subtotal = items.reduce(
     (sum, item) => sum + item.quantity * item.rate,
@@ -91,8 +94,9 @@ const InvoicePreview = () => {
 
   const taxAmount = subtotal * tax / 100;
   const grandTotal = subtotal + taxAmount;
-
+  // className="pdf-export"
   return (
+
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 print:bg-white">
       <div className="mx-auto my-10 w-11/12 max-w-5xl rounded-xl bg-white shadow-2xl print:shadow-none">
         {/* Toolbar */}
@@ -103,17 +107,11 @@ const InvoicePreview = () => {
           </h2>
           <div className="space-x-3">
             <button
-              onClick={() => window.print()}
-              className="rounded-lg bg-green-600 px-5 py-2 text-white hover:bg-green-700"
+              onClick={DownloadPDF}
+              className="pdf-export rounded-lg bg-green-600 px-5 py-2 text-white hover:bg-green-700"
             >
               🖨 Print
             </button>
-            {/* <button
-              onClick={downloadPDF}
-              className="rounded-lg bg-blue-600 px-5 py-2 text-white hover:bg-blue-700"
-            >
-              📄 Download PDF
-            </button> */}
             <button
               onClick={onClose}
               className="rounded-lg bg-red-600 px-5 py-2 text-white hover:bg-red-700"
@@ -123,35 +121,38 @@ const InvoicePreview = () => {
           </div>
         </div>
 
-        <div className="p-10" id="invoice-preview">
-          <div className="flex justify-between border-b pb-6">
-            <div>
-              <h1
-                className="text-4xl font-bold"
-                style={{ color: "#2563EB" }}
-              >                Invoice Pro
+        <div
+          id="invoice-preview"
+          ref={invoiceRef}
+          className="invoice"
+        >
+
+          <div className="invoice-header">
+            <div className="company-section">
+              <h1 className="company-name">
+                Invoice Pro
               </h1>
               <p>Chennai, Tamil Nadu, India</p>
               <p>Email : pazhanimathesh@gmail.com</p>
             </div>
 
-            <div className="text-right">
-              <h2 className="text-3xl font-bold">
+            <div className="invoice-info">
+              <h2 className="invoice-title">
                 TAX INVOICE
               </h2>
               <p>{invoiceNo}</p>
               <p>{invoiceDate}</p>
             </div>
           </div>
-          <div className="mt-8">
-            <h3 className="font-bold">
+          <div className="customer-section">
+            <h3 className="section-title">
               Bill To
             </h3>
             <p>{clientName}</p>
             <p>{address}</p>
           </div>
-          <table className="mt-8 w-full border">
-            <thead className="bg-slate-800 text-white">
+          <table className="invoice-table">
+            <thead>
               <tr>
                 <th className="p-3 text-left">
                   Description
@@ -179,32 +180,28 @@ const InvoicePreview = () => {
                   <td className="text-center">
                     ₹ {item.rate.toFixed(2)}
                   </td>
-                  <td className="text-center font-semibold">
+                  <td className="amount">
                     ₹ {(item.quantity * item.rate).toFixed(2)}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-          <div className="mt-10 flex justify-end">
-            <div className="w-80 rounded-lg border p-5">
-              <div className="flex justify-between">
+          <div className="summary-wrapper">
+            <div className="summary-card">
+              <div className="summary-row">
                 <span>Subtotal</span>
                 <span>{formatCurrency(subtotal)}</span>
               </div>
-
-              <div className="mt-2 flex justify-between">
+              <div className="summary-row">
                 <span>GST ({tax}%)</span>
                 <span>{formatCurrency(taxAmount)}</span>
               </div>
-
-              <hr className="my-4" />
-              <div className="flex justify-between text-2xl font-bold">
+              <div className="summary-total">
                 <span>Total</span>
                 <span>{formatCurrency(grandTotal)}</span>
               </div>
             </div>
-
           </div>
         </div>
       </div>
